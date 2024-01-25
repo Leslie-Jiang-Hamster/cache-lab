@@ -19,8 +19,8 @@ int is_transpose(int M, int N, int A[N][M], int B[M][N]);
  *     searches for that string to identify the transpose function to
  *     be graded. 
  */
-char transpose_submit_desc[] = "Transpose submission";
-void transpose_submit(int M, int N, int A[N][M], int B[M][N])
+char transpose_32_32_desc[] = "Transpose 32*32";
+void transpose_32_32(int M, int N, int A[N][M], int B[M][N])
 {
     #define elif else if
     const int BSIZE = 8;
@@ -70,6 +70,49 @@ void transpose_submit(int M, int N, int A[N][M], int B[M][N])
     }    
 }
 
+char transpose_64_64_desc[] = "Transpose 64*64";
+void transpose_64_64(int M, int N, int A[N][M], int B[M][N])
+{
+    #define elif else if
+    const int BSIZE = 4;
+    int _M = M / BSIZE, _N = N / BSIZE, tmp, cnt = 0;
+    int a0, a1, a2, a3;
+    for (int i = 0; i < _N; i++) {
+        for (int j = 0; j < _M; j++) {
+            for (int _i = 0; _i < BSIZE; _i++) {
+                for (int _j = 0; _j < BSIZE; _j++, cnt++) {
+                    tmp = A[i * BSIZE + _i][j * BSIZE + _j];
+                    if (cnt == 0) {
+                        a0 = tmp;
+                    }
+                    elif (cnt == 1) {
+                        a1 = tmp;
+                    }
+                    elif (cnt == 2) {
+                        a2 = tmp;
+                    }
+                    else {
+                        a3 = tmp;
+                        cnt = -1;
+                        B[j * BSIZE + _j - 3][i * BSIZE + _i] = a0;
+                        B[j * BSIZE + _j - 2][i * BSIZE + _i] = a1;
+                        B[j * BSIZE + _j - 1][i * BSIZE + _i] = a2;
+                        B[j * BSIZE + _j][i * BSIZE + _i] = a3;
+                    }
+                }
+            }
+        }
+    }    
+}
+
+char transpose_submit_desc[] = "Transpose submission";
+void transpose_submit(int M, int N, int A[N][M], int B[M][N]) {
+    if (M == 32)
+        transpose_32_32(M, N, A, B);
+    else if (M == 64)
+        transpose_64_64(M, N, A, B);
+}
+
 /* 
  * You can define additional transpose functions below. We've defined
  * a simple one below to help you get started. 
@@ -102,7 +145,7 @@ void trans(int M, int N, int A[N][M], int B[M][N])
 void registerFunctions()
 {
     /* Register your solution function */
-    registerTransFunction(transpose_submit, transpose_submit_desc); 
+    registerTransFunction(transpose_submit, transpose_submit_desc);
 
     /* Register any additional transpose functions */
     registerTransFunction(trans, trans_desc); 
