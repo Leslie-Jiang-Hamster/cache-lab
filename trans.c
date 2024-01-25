@@ -105,12 +105,37 @@ void transpose_64_64(int M, int N, int A[N][M], int B[M][N])
     }    
 }
 
+int min(int x, int y) {
+    return x < y ? x : y;
+}
+
+char transpose_61_67_desc[] = "Transpose 61*67";
+void transpose_61_67(int M, int N, int A[N][M], int B[M][N])
+{
+    #define elif else if
+    const int BSIZE = 16;
+    int _M = M / BSIZE + 1, _N = N / BSIZE + 1, tmp;
+    int a0, a1, a2, a3, a4, a5, a6, a7;
+    for (int i = 0; i < _N; i++) {
+        for (int j = 0; j < _M; j++) {
+            for (int _i = 0; _i < min(N - i * BSIZE, BSIZE); _i++) {
+                for (int _j = 0; _j < min(M - j * BSIZE, BSIZE); _j++) {
+                    tmp = A[i * BSIZE + _i][j * BSIZE + _j];
+                    B[j * BSIZE + _j][i * BSIZE + _i] = tmp;
+                }
+            }
+        }
+    }    
+}
+
 char transpose_submit_desc[] = "Transpose submission";
 void transpose_submit(int M, int N, int A[N][M], int B[M][N]) {
     if (M == 32)
         transpose_32_32(M, N, A, B);
     else if (M == 64)
         transpose_64_64(M, N, A, B);
+    else if (M == 61)
+        transpose_61_67(M, N, A, B);
 }
 
 /* 
