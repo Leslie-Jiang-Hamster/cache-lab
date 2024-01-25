@@ -22,6 +22,52 @@ int is_transpose(int M, int N, int A[N][M], int B[M][N]);
 char transpose_submit_desc[] = "Transpose submission";
 void transpose_submit(int M, int N, int A[N][M], int B[M][N])
 {
+    #define elif else if
+    const int BSIZE = 8;
+    int _M = M / BSIZE, _N = N / BSIZE, tmp, cnt = 0;
+    int a0, a1, a2, a3, a4, a5, a6, a7;
+    for (int i = 0; i < _N; i++) {
+        for (int j = 0; j < _M; j++) {
+            for (int _i = 0; _i < BSIZE; _i++) {
+                for (int _j = 0; _j < BSIZE; _j++, cnt++) {
+                    tmp = A[i * BSIZE + _i][j * BSIZE + _j];
+                    if (cnt == 0) {
+                        a0 = tmp;
+                    }
+                    elif (cnt == 1) {
+                        a1 = tmp;
+                    }
+                    elif (cnt == 2) {
+                        a2 = tmp;
+                    }
+                    elif (cnt == 3) {
+                        a3 = tmp;
+                    }
+                    elif (cnt == 4) {
+                        a4 = tmp;
+                    }
+                    elif (cnt == 5) {
+                        a5 = tmp;
+                    }
+                    elif (cnt == 6) {
+                        a6 = tmp;
+                    }
+                    else {
+                        a7 = tmp;
+                        cnt = -1;
+                        B[j * BSIZE + _j - 7][i * BSIZE + _i] = a0;
+                        B[j * BSIZE + _j - 6][i * BSIZE + _i] = a1;
+                        B[j * BSIZE + _j - 5][i * BSIZE + _i] = a2;
+                        B[j * BSIZE + _j - 4][i * BSIZE + _i] = a3;
+                        B[j * BSIZE + _j - 3][i * BSIZE + _i] = a4;
+                        B[j * BSIZE + _j - 2][i * BSIZE + _i] = a5;
+                        B[j * BSIZE + _j - 1][i * BSIZE + _i] = a6;
+                        B[j * BSIZE + _j][i * BSIZE + _i] = a7;
+                    }
+                }
+            }
+        }
+    }    
 }
 
 /* 
