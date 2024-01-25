@@ -2,3 +2,4 @@
 csim
 test
 *.tmp
+trace.*
